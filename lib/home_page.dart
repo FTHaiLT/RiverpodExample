@@ -1,6 +1,19 @@
 import 'package:demo_riverpod/counter_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+
+final testProvider =
+Provider((ref) => 'You have pushed the button this many times:');
+final testStateProvider = StateProvider((ref) => 0);
+final testFutureProvider = FutureProvider<String>((ref) async {
+  DateTime current = DateTime.now();
+  return DateFormat.Hms().format(current);
+});
+
+final testStreamProvider = StreamProvider((ref) =>
+    Stream<int>.periodic(const Duration(seconds: 1), (count) => count)
+        .take(10));
 
 class MyHomePage extends ConsumerWidget {
   const MyHomePage({super.key, required this.title});
@@ -36,18 +49,40 @@ class MyHomePage extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'You have pushed the button this many times:',
+            Consumer(
+              builder: (context, ref, child) {
+                return Text(ref.watch(testProvider));
+              },
             ),
             Consumer(
               builder: (context, ref, child) {
-                return ConsumerText(data: '${ref.watch(counterProvider)}');
+                return ConsumerText(
+                    data:
+                    'StateNotifierProvider: ${ref.watch(counterProvider)}');
               },
               // child: Text(
               //   '${ref.watch(counterProvider)}',
               //   style: Theme.of(context).textTheme.headlineMedium,
               // ),
             ),
+            Consumer(
+              builder: (context, ref, child) {
+                return Text('StateProvider: ${ref.watch(testStateProvider)}');
+              },
+            ),
+            Consumer(builder: (context, ref, child) {
+              var asyncDateString = ref.watch(testFutureProvider);
+              return asyncDateString.when<Widget>(
+                  data: (dateString) => Text('Future Provider: $dateString'),
+                  error: (e, s) => Text(e.toString()),
+                  loading: () => const CircularProgressIndicator());
+            }),
+            Consumer(builder: (context, ref, child) {
+              var stream = ref.watch(testStreamProvider);
+              return stream.when(data: (value) => Text(value.toString()),
+                  error: (e, s) => Text(e.toString()),
+                  loading: () => const CircularProgressIndicator());
+            })
           ],
         ),
       ),
@@ -96,7 +131,10 @@ class ConsumerText extends StatelessWidget {
     print('ConsumerText build');
     return Text(
       data,
-      style: Theme.of(context).textTheme.headlineMedium,
+      style: Theme
+          .of(context)
+          .textTheme
+          .headlineSmall,
     );
   }
 }
