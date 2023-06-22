@@ -91,6 +91,7 @@ class MyHomePage extends ConsumerWidget {
           Align(
             alignment: Alignment.bottomRight,
             child: FloatingActionButton(
+              heroTag: 1,
               onPressed: () => counter.increment(),
               tooltip: 'Increment',
               child: const Icon(Icons.add),
@@ -101,6 +102,7 @@ class MyHomePage extends ConsumerWidget {
             child: Container(
               margin: const EdgeInsets.only(left: 32),
               child: FloatingActionButton(
+                heroTag: 2,
                 onPressed: () => _resetCounter(ref),
                 tooltip: 'Reset',
                 child: const Icon(Icons.autorenew_rounded),
